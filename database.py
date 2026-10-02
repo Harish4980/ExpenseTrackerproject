@@ -58,8 +58,8 @@ def verify_user(login_identifier, password):
     cursor = conn.cursor()
     cursor.execute('''
         SELECT * FROM users 
-        WHERE (username = ? OR email = ? OR phone = ?) AND password = ?
-    ''', (login_identifier, login_identifier, login_identifier, password))
+        WHERE (email = ? OR phone = ?) AND password = ?
+    ''', (login_identifier, login_identifier, password))
     user = cursor.fetchone()
     conn.close()
     return user
