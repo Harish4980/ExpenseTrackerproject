@@ -1,7 +1,21 @@
+import os
+import shutil
 import sqlite3
+import tempfile
 from datetime import datetime
 
-DATABASE_NAME = 'expenses.db'
+# Handle Vercel serverless environment where root filesystem is read-only
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+if os.environ.get('VERCEL'):
+    DATABASE_NAME = os.path.join(tempfile.gettempdir(), 'expenses.db')
+    bundled_db = os.path.join(BASE_DIR, 'expenses.db')
+    if not os.path.exists(DATABASE_NAME) and os.path.exists(bundled_db):
+        try:
+            shutil.copyfile(bundled_db, DATABASE_NAME)
+        except Exception:
+            pass
+else:
+    DATABASE_NAME = os.path.join(BASE_DIR, 'expenses.db')
 
 def get_db_connection():
     conn = sqlite3.connect(DATABASE_NAME)
