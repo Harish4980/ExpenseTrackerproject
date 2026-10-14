@@ -1,0 +1,77 @@
+/* Custom style sheet for Expense Tracker */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #333;
+}
+
+/* Gradients for Summary Cards */
+.bg-gradient-success {
+    background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%) !important;
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%) !important;
+}
+
+.card {
+    border-radius: 12px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-header {
+    border-top-left-radius: 12px !important;
+    border-top-right-radius: 12px !important;
+}
+
+.table th {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-uppercase: true;
+    letter-spacing: 0.05em;
+}
+
+/* Navigation tweaks */
+.navbar-brand {
+    letter-spacing: 0.05em;
+}
+
+.nav-link {
+    transition: color 0.15s ease;
+}
+
+/* Print Styling */
+@media print {
+    /* Hide headers, footers, and page controls */
+    .d-print-none,
+    nav,
+    footer,
+    .btn,
+    form,
+    .modal {
+        display: none !important;
+    }
+    
+    /* Make the container full width */
+    .container {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    /* Avoid breaking cards across pages */
+    .card {
+        border: 1px solid #ddd !important;
+        box-shadow: none !important;
+        page-break-inside: avoid;
+    }
+
+    body {
+        background-color: #fff !important;
+        color: #000 !important;
+        font-size: 12pt;
+    }
+}
