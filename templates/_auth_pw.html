@@ -1,0 +1,103 @@
+{# Shared password helpers for login / register:
+   show-hide eye (with auto-hide), Caps Lock warning, strength meter, confirm-match check. #}
+<style>
+    .pw-input { padding-right: 3.1rem !important; }
+    input::-ms-reveal, input::-ms-clear { display: none; }
+    .password-toggle-btn[aria-pressed="true"] { color: #38bdf8; }
+
+    .pw-hint {
+        display: none; align-items: center; gap: .4rem;
+        margin-top: .5rem; font-size: .78rem; color: #fbbf24;
+    }
+    .pw-hint.show { display: flex; animation: pwFade .25s ease-out; }
+    @keyframes pwFade { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+
+    .pw-meter { display: flex; gap: 5px; margin-top: .6rem; }
+    .pw-meter span {
+        flex: 1; height: 5px; border-radius: 4px;
+        background: rgba(255,255,255,.10); transition: background .25s ease, box-shadow .25s ease;
+    }
+    .pw-meter[data-level="1"] span:nth-child(-n+1) { background: #ef4444; box-shadow: 0 0 8px rgba(239,68,68,.6); }
+    .pw-meter[data-level="2"] span:nth-child(-n+2) { background: #f59e0b; box-shadow: 0 0 8px rgba(245,158,11,.6); }
+    .pw-meter[data-level="3"] span:nth-child(-n+3) { background: #84cc16; box-shadow: 0 0 8px rgba(132,204,22,.6); }
+    .pw-meter[data-level="4"] span:nth-child(-n+4) { background: #10b981; box-shadow: 0 0 8px rgba(16,185,129,.7); }
+    .pw-meter-label { margin-top: .4rem; font-size: .76rem; color: #94a3b8; }
+    .pw-match { margin-top: .45rem; font-size: .78rem; min-height: 1.1em; }
+    .pw-match.ok  { color: #6ee7b7; }
+    .pw-match.bad { color: #fca5a5; }
+</style>
+
+<script>
+(function () {
+    // ---------- 1. Show / hide password (eye button) ----------
+    document.querySelectorAll('.password-toggle-btn[data-target]').forEach(function (btn) {
+        var input = document.getElementById(btn.dataset.target);
+        if (!input) return;
+        var icon = btn.querySelector('i'), timer = null;
+
+        function setShown(show) {
+            var s = input.selectionStart, e = input.selectionEnd;
+            input.type = show ? 'text' : 'password';
+            icon.className = 'fa-solid ' + (show ? 'fa-eye-slash' : 'fa-eye');
+            btn.setAttribute('aria-pressed', show ? 'true' : 'false');
+            btn.title = show ? 'Hide password' : 'Show password';
+            clearTimeout(timer);
+            if (show) timer = setTimeout(function () { setShown(false); }, 20000); // auto-hide for safety
+            try { input.setSelectionRange(s, e); } catch (_) {}
+        }
+        btn.addEventListener('mousedown', function (ev) { ev.preventDefault(); }); // keep focus in the field
+        btn.addEventListener('click', function (ev) {
+            ev.preventDefault();
+            setShown(input.type === 'password');
+            input.focus();
+        });
+        if (input.form) input.form.addEventListener('submit', function () { setShown(false); });
+    });
+
+    // ---------- 2. Caps Lock warning ----------
+    var caps = document.getElementById('capsHint');
+    function capsCheck(ev) {
+        if (!caps || !ev.getModifierState) return;
+        caps.classList.toggle('show', ev.getModifierState('CapsLock'));
+    }
+    document.querySelectorAll('.pw-input').forEach(function (inp) {
+        inp.addEventListener('keydown', capsCheck);
+        inp.addEventListener('keyup', capsCheck);
+        inp.addEventListener('blur', function () { if (caps) caps.classList.remove('show'); });
+    });
+
+    // ---------- 3. Strength meter (register page) ----------
+    var pw = document.getElementById('password');
+    var meter = document.getElementById('pwMeter'), label = document.getElementById('pwLabel');
+    var confirmEl = document.getElementById('confirm_password'), matchEl = document.getElementById('pwMatch');
+    var words = ['Use 8+ characters with letters, numbers & symbols', 'Weak \u2013 add more characters', 'Fair \u2013 add numbers or symbols', 'Good \u2013 almost there', 'Strong password'];
+
+    function score(v) {
+        if (!v) return 0;
+        var s = 0;
+        if (v.length >= 8) s++;
+        if (/[a-z]/.test(v) && /[A-Z]/.test(v)) s++;
+        if (/\d/.test(v)) s++;
+        if (/[^A-Za-z0-9]/.test(v)) s++;
+        if (v.length >= 14 && s < 4) s++;
+        return Math.max(1, Math.min(4, s));
+    }
+    function checkMatch() {
+        if (!confirmEl || !matchEl) return;
+        if (!confirmEl.value) { matchEl.textContent = ''; matchEl.className = 'pw-match'; confirmEl.setCustomValidity(''); return; }
+        var ok = confirmEl.value === pw.value;
+        matchEl.textContent = ok ? '\u2713 Passwords match' : '\u2717 Passwords do not match';
+        matchEl.className = 'pw-match ' + (ok ? 'ok' : 'bad');
+        confirmEl.setCustomValidity(ok ? '' : 'Passwords do not match');
+    }
+    if (pw && meter && label) {
+        pw.addEventListener('input', function () {
+            var l = score(pw.value);
+            meter.setAttribute('data-level', l);
+            label.textContent = words[l];
+            checkMatch();
+        });
+    }
+    if (confirmEl) confirmEl.addEventListener('input', checkMatch);
+})();
+</script>

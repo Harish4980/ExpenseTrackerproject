@@ -1,0 +1,230 @@
+{# 3D "Money Galaxy" background for login / register.
+   Pure canvas (no external libraries) so it can never fail to load.
+   Usage: {% set bg_theme = 'login' %}{% include '_auth_bg.html' %} #}
+{% set _t = bg_theme|default('login') %}
+<style>
+    html { background: #05070f; color-scheme: dark; }
+    #bg3d {
+        position: fixed; inset: 0; width: 100%; height: 100%;
+        z-index: 0; display: block; pointer-events: none; background: #070a16;
+    }
+    .bg-vignette {
+        position: fixed; inset: 0; z-index: 1; pointer-events: none;
+        background: radial-gradient(ellipse at center, rgba(0,0,0,0) 45%, rgba(2,4,10,0.65) 100%);
+    }
+</style>
+<canvas id="bg3d"
+    {% if _t == 'register' %}data-c1="#10b981" data-c2="#22d3ee" data-c3="#a3e635"
+    {% else %}data-c1="#6366f1" data-c2="#22d3ee" data-c3="#f472b6"{% endif %}
+    aria-hidden="true"></canvas>
+<div class="bg-vignette"></div>
+
+<script>
+(function () {
+    var cv = document.getElementById('bg3d');
+    if (!cv || !cv.getContext) return;
+    var ctx = cv.getContext('2d');
+    var C1 = cv.dataset.c1, C2 = cv.dataset.c2, C3 = cv.dataset.c3;
+    var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var W = 0, H = 0, dpr = 1, mx = 0, my = 0, sx = 0, sy = 0, last = 0;
+    var TAU = Math.PI * 2;
+    var stars = [], nodes = [], links = [], coins = [], rings = [];
+
+    function rgba(hex, a) {
+        var n = parseInt(hex.slice(1), 16);
+        return 'rgba(' + (n >> 16 & 255) + ',' + (n >> 8 & 255) + ',' + (n & 255) + ',' + a + ')';
+    }
+    // rotate point around X (ax) then Y (ay); z > 0 means farther from camera
+    function rot(x, y, z, ax, ay) {
+        var c = Math.cos(ay), s = Math.sin(ay);
+        var x1 = x * c + z * s, z1 = -x * s + z * c;
+        c = Math.cos(ax); s = Math.sin(ax);
+        return [x1, y * c - z1 * s, y * s + z1 * c];
+    }
+
+    function build() {
+        var small = Math.min(W, H) < 640, i, j;
+        stars = [];
+        for (i = 0; i < (small ? 110 : 240); i++)
+            stars.push({ x: (Math.random() - .5) * 2800, y: (Math.random() - .5) * 2200,
+                         z: Math.random() * 1400 + 30, c: Math.random() });
+        // Fibonacci-sphere network globe
+        nodes = []; links = [];
+        var N = small ? 48 : 86, ga = Math.PI * (3 - Math.sqrt(5));
+        for (i = 0; i < N; i++) {
+            var y = 1 - (i / (N - 1)) * 2, r = Math.sqrt(1 - y * y), th = ga * i;
+            nodes.push({ x: Math.cos(th) * r, y: y, z: Math.sin(th) * r });
+        }
+        var thr = small ? .78 : .58;
+        for (i = 0; i < N; i++) for (j = i + 1; j < N; j++) {
+            var dx = nodes[i].x - nodes[j].x, dy = nodes[i].y - nodes[j].y, dz = nodes[i].z - nodes[j].z;
+            if (Math.sqrt(dx * dx + dy * dy + dz * dz) < thr) links.push([i, j]);
+        }
+        rings = [
+            { r: 1.28, tx: 1.15, ty: 0.0, sp: 0.00055, col: C2 },
+            { r: 1.50, tx: -0.55, ty: 1.0, sp: -0.00040, col: C1 },
+            { r: 1.74, tx: 0.25, ty: -0.9, sp: 0.00030, col: C3 }
+        ];
+        coins = [];
+        for (i = 0; i < (small ? 5 : 8); i++)
+            coins.push({ a: Math.random() * TAU, sp: (.00018 + Math.random() * .00022) * (i % 2 ? -1 : 1),
+                         or: 1.45 + Math.random() * .9, y: (Math.random() - .5) * 1.3,
+                         r: .09 + Math.random() * .06, spin: Math.random() * TAU,
+                         ss: .0011 + Math.random() * .0016, ph: Math.random() * TAU });
+    }
+
+    function resize() {
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        W = window.innerWidth; H = window.innerHeight;
+        cv.width = W * dpr; cv.height = H * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        build();
+        if (reduce) frame(4000, 16);
+    }
+
+    function coin(x, y, r, spin, alpha, glow) {
+        var cs = Math.cos(spin), sn = Math.sin(spin), w = Math.max(Math.abs(cs) * r, .6);
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.translate(x, y);
+        if (glow) { ctx.shadowColor = 'rgba(251,191,36,.55)'; ctx.shadowBlur = r * .9; }
+        // coin edge (thickness)
+        ctx.fillStyle = '#92400e';
+        ctx.beginPath(); ctx.ellipse((sn >= 0 ? 1 : -1) * r * .16 * Math.abs(sn), 0, w, r, 0, 0, TAU); ctx.fill();
+        ctx.shadowBlur = 0;
+        // face
+        var g = ctx.createRadialGradient(-w * .3, -r * .35, r * .05, 0, 0, r);
+        g.addColorStop(0, '#fef3c7'); g.addColorStop(.45, '#fbbf24'); g.addColorStop(1, '#b45309');
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.ellipse(0, 0, w, r, 0, 0, TAU); ctx.fill();
+        ctx.strokeStyle = 'rgba(120,53,15,.55)'; ctx.lineWidth = Math.max(r * .06, .8);
+        ctx.beginPath(); ctx.ellipse(0, 0, w * .76, r * .76, 0, 0, TAU); ctx.stroke();
+        if (Math.abs(cs) > .28) {
+            ctx.scale(Math.abs(cs), 1);
+            ctx.fillStyle = 'rgba(120,53,15,.85)';
+            ctx.font = '800 ' + (r * 1.05) + 'px "Plus Jakarta Sans","Segoe UI","Noto Sans",Arial,sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(cs > 0 ? '\u20B9' : '$', 0, r * .04);
+        }
+        ctx.restore();
+    }
+
+    function frame(now, dtOverride) {
+        var dt = dtOverride || Math.min(now - (last || now), 50); last = now;
+        var t = now;
+        sx += (mx - sx) * .05; sy += (my - sy) * .05;
+        var mobile = W < 700;
+        var cx = W / 2, cy = mobile ? H * .16 : H / 2, i, p, k;
+        var R = mobile ? Math.min(W * .34, H * .17) : Math.min(W, H) * .33, D = R * 3.4;
+        var ay = t * .00016 + sx * .75, ax = -.28 + sy * .45;
+
+        // --- backdrop gradient + drifting colour glows
+        var g = ctx.createRadialGradient(cx, cy * .9, 0, cx, cy, Math.max(W, H) * .8);
+        g.addColorStop(0, '#141a3d'); g.addColorStop(.5, '#0a0e22'); g.addColorStop(1, '#04060d');
+        ctx.globalAlpha = 1; ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+        var gx = cx + Math.cos(t * .00018) * W * .28, gy = cy + Math.sin(t * .00023) * H * .25;
+        var gl = ctx.createRadialGradient(gx, gy, 0, gx, gy, Math.max(W, H) * .45);
+        gl.addColorStop(0, rgba(C1, .22)); gl.addColorStop(1, rgba(C1, 0));
+        ctx.fillStyle = gl; ctx.fillRect(0, 0, W, H);
+        var hx = cx - Math.cos(t * .0002) * W * .3, hy = cy - Math.sin(t * .00017) * H * .3;
+        gl = ctx.createRadialGradient(hx, hy, 0, hx, hy, Math.max(W, H) * .4);
+        gl.addColorStop(0, rgba(C3, .14)); gl.addColorStop(1, rgba(C3, 0));
+        ctx.fillStyle = gl; ctx.fillRect(0, 0, W, H);
+
+        // --- starfield flying toward the viewer
+        for (i = 0; i < stars.length; i++) {
+            var s = stars[i];
+            s.z -= dt * .11;
+            if (s.z < 30) { s.z = 1400; s.x = (Math.random() - .5) * 2800; s.y = (Math.random() - .5) * 2200; }
+            var sc = 420 / s.z;
+            var px = cx + (s.x - sx * 160) * sc, py = cy + (s.y - sy * 160) * sc;
+            if (px < -4 || px > W + 4 || py < -4 || py > H + 4) continue;
+            var sz = Math.min(2.8, .5 + sc * 1.3);
+            ctx.globalAlpha = Math.min(1, sc * 1.4) * (.3 + .7 * s.c);
+            ctx.fillStyle = s.c > .8 ? C3 : (s.c > .45 ? C2 : '#ffffff');
+            ctx.fillRect(px, py, sz, sz);
+        }
+        ctx.globalAlpha = 1;
+
+        // --- coins (collect, project, split behind / in front of the globe)
+        var back = [], front = [];
+        for (i = 0; i < coins.length; i++) {
+            var c = coins[i];
+            c.a += c.sp * dt; c.spin += c.ss * dt;
+            var wy = (c.y + Math.sin(c.ph + t * .0006) * .09) * R;
+            p = rot(Math.cos(c.a) * c.or * R, wy, Math.sin(c.a) * c.or * R, ax, ay);
+            var ps = D / (D + p[2]);
+            var item = { x: cx + p[0] * ps, y: cy + p[1] * ps, z: p[2], r: c.r * R * ps * 1.5, spin: c.spin };
+            (p[2] > 0 ? back : front).push(item);
+        }
+        back.sort(function (a, b) { return b.z - a.z; });
+        front.sort(function (a, b) { return b.z - a.z; });
+        for (i = 0; i < back.length; i++) coin(back[i].x, back[i].y, back[i].r, back[i].spin, .5, false);
+
+        // --- network globe
+        var P = new Array(nodes.length);
+        for (i = 0; i < nodes.length; i++) {
+            p = rot(nodes[i].x * R, nodes[i].y * R, nodes[i].z * R, ax, ay);
+            var q = D / (D + p[2]);
+            P[i] = { x: cx + p[0] * q, y: cy + p[1] * q, near: 1 - (p[2] / R + 1) / 2, q: q };
+        }
+        ctx.lineWidth = 1;
+        for (i = 0; i < links.length; i++) {
+            var a = P[links[i][0]], b = P[links[i][1]], nr = (a.near + b.near) / 2;
+            ctx.strokeStyle = rgba(C2, .05 + .38 * nr);
+            ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+        }
+        for (i = 0; i < P.length; i++) {
+            var n = P[i], hot = i % 9 === 0;
+            if (hot) {
+                ctx.fillStyle = rgba(C3, .12 + .2 * n.near);
+                ctx.beginPath(); ctx.arc(n.x, n.y, 7 + 3 * Math.sin(t * .003 + i) , 0, TAU); ctx.fill();
+            }
+            ctx.fillStyle = hot ? C3 : 'rgba(226,232,255,' + (.25 + .7 * n.near) + ')';
+            ctx.beginPath(); ctx.arc(n.x, n.y, (hot ? 2.6 : 1.3) + 1.6 * n.near, 0, TAU); ctx.fill();
+        }
+
+        // --- orbit rings with a satellite each
+        for (k = 0; k < rings.length; k++) {
+            var rg = rings[k], prev = null, M = 80;
+            for (i = 0; i <= M; i++) {
+                var u = i / M * TAU;
+                var r0 = rot(Math.cos(u) * rg.r * R, 0, Math.sin(u) * rg.r * R, rg.tx, rg.ty);
+                r0 = rot(r0[0], r0[1], r0[2], ax, ay);
+                var rq = D / (D + r0[2]), pt = { x: cx + r0[0] * rq, y: cy + r0[1] * rq, z: r0[2] };
+                if (prev) {
+                    ctx.strokeStyle = rgba(rg.col, .08 + .3 * (1 - (pt.z / (rg.r * R) + 1) / 2));
+                    ctx.lineWidth = 1.2;
+                    ctx.beginPath(); ctx.moveTo(prev.x, prev.y); ctx.lineTo(pt.x, pt.y); ctx.stroke();
+                }
+                prev = pt;
+            }
+            var su = (t * Math.abs(rg.sp) * 6 + k * 2) % TAU * (rg.sp < 0 ? -1 : 1);
+            var s0 = rot(Math.cos(su) * rg.r * R, 0, Math.sin(su) * rg.r * R, rg.tx, rg.ty);
+            s0 = rot(s0[0], s0[1], s0[2], ax, ay);
+            var sq = D / (D + s0[2]), sxp = cx + s0[0] * sq, syp = cy + s0[1] * sq;
+            ctx.fillStyle = rgba(rg.col, .25); ctx.beginPath(); ctx.arc(sxp, syp, 9 * sq, 0, TAU); ctx.fill();
+            ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(sxp, syp, 2.8 * sq, 0, TAU); ctx.fill();
+        }
+
+        for (i = 0; i < front.length; i++) {
+            var f = front[i];
+            coin(f.x, f.y, f.r, f.spin, .95, true);
+        }
+        ctx.globalAlpha = 1;
+        if (!reduce) requestAnimationFrame(frame);
+    }
+
+    window.addEventListener('mousemove', function (e) {
+        mx = (e.clientX / W - .5) * 2; my = (e.clientY / H - .5) * 2;
+    }, { passive: true });
+    window.addEventListener('touchmove', function (e) {
+        var t = e.touches[0]; if (!t) return;
+        mx = (t.clientX / W - .5) * 2; my = (t.clientY / H - .5) * 2;
+    }, { passive: true });
+    window.addEventListener('resize', resize);
+
+    resize();
+    if (!reduce) requestAnimationFrame(frame);
+})();
+</script>

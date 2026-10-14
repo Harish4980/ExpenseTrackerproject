@@ -29,7 +29,7 @@ app = Flask(
     template_folder=template_dir,
     static_folder=static_dir
 )
-app.secret_key = 'expense_tracker_secret_key'
+app.secret_key = os.environ.get('SECRET_KEY', 'expense_tracker_secret_key')
 
 database.init_db()
 
@@ -79,6 +79,11 @@ def register():
 
         if not username or not contact or not password:
             flash('Please fill in all fields!', 'danger')
+            return redirect(url_for('register'))
+
+        confirm = request.form.get('confirm_password')
+        if confirm is not None and confirm != password:
+            flash('Passwords do not match!', 'danger')
             return redirect(url_for('register'))
 
         email = contact
@@ -353,6 +358,42 @@ def report():
         chart_labels=chart_labels,
         chart_values=chart_values
     )
+
+
+@app.route('/profile', methods=['GET', 'POST'])
+def profile():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+
+    user_id = session.get('user_id')
+
+    if request.method == 'POST':
+        username = request.form.get('username')
+        email = request.form.get('email')
+        phone = request.form.get('phone')
+        current_password = request.form.get('current_password')
+        new_password = request.form.get('new_password')
+
+        if not username or not email or not phone:
+            flash('Name, email, and phone number cannot be empty!', 'danger')
+            return redirect(url_for('profile'))
+
+        success, msg = database.update_user_profile(
+            user_id, username, email, phone, new_password, current_password
+        )
+
+        if success:
+            session['username'] = username
+            flash(msg, 'success')
+        else:
+            flash(msg, 'danger')
+
+        return redirect(url_for('profile'))
+
+    user = database.get_user_by_id(user_id)
+    stats = database.get_user_stats(user_id)
+
+    return render_template('profile.html', user=user, stats=stats)
 
 
 if __name__ == '__main__':

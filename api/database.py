@@ -173,3 +173,68 @@ def get_recent_expenses(user_id, limit=5):
     expenses = cursor.fetchall()
     conn.close()
     return expenses
+
+def get_user_by_id(user_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT id, username, email, phone FROM users WHERE id = ?', (user_id,))
+    user = cursor.fetchone()
+    conn.close()
+    return user
+
+def get_user_stats(user_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT COUNT(*), SUM(amount) FROM expenses WHERE user_id = ?', (user_id,))
+    count_row = cursor.fetchone()
+    total_count = count_row[0] if count_row and count_row[0] is not None else 0
+    total_amount = count_row[1] if count_row and count_row[1] is not None else 0.0
+
+    cursor.execute('''
+        SELECT category, SUM(amount) as cat_sum
+        FROM expenses 
+        WHERE user_id = ? 
+        GROUP BY category 
+        ORDER BY cat_sum DESC 
+        LIMIT 1
+    ''', (user_id,))
+    top_row = cursor.fetchone()
+    top_category = top_row['category'] if top_row else 'None'
+    conn.close()
+    return {
+        'total_count': total_count,
+        'total_amount': total_amount,
+        'top_category': top_category
+    }
+
+def update_user_profile(user_id, username, email, phone, new_password=None, current_password=None):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        if new_password and new_password.strip():
+            if current_password:
+                cursor.execute('SELECT password FROM users WHERE id = ?', (user_id,))
+                row = cursor.fetchone()
+                if not row or row['password'] != current_password:
+                    conn.close()
+                    return False, "Current password does not match."
+            cursor.execute('''
+                UPDATE users 
+                SET username = ?, email = ?, phone = ?, password = ?
+                WHERE id = ?
+            ''', (username, email, phone, new_password, user_id))
+        else:
+            cursor.execute('''
+                UPDATE users 
+                SET username = ?, email = ?, phone = ?
+                WHERE id = ?
+            ''', (username, email, phone, user_id))
+        conn.commit()
+        success = True
+        msg = "Profile updated successfully!"
+    except sqlite3.IntegrityError:
+        success = False
+        msg = "Email or phone number is already registered to another account."
+    finally:
+        conn.close()
+    return success, msg

@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+
+        <!-- User Profile Hero Header (3D Glass) -->
+        <div class="card card-glass mb-4 p-4 p-md-5 position-relative overflow-hidden">
+            <!-- Background Decorative Glow -->
+            <div style="position: absolute; top: -50px; right: -50px; width: 220px; height: 220px; background: radial-gradient(circle, rgba(99,102,241,0.3) 0%, transparent 70%); border-radius: 50%; pointer-events: none;"></div>
+
+            <div class="d-flex flex-column flex-md-row align-items-center gap-4 text-center text-md-start position-relative">
+                <!-- 3D Glowing User Avatar -->
+                <div class="position-relative">
+                    <div style="width: 90px; height: 90px; border-radius: 24px; background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 800; color: #ffffff; box-shadow: 0 12px 30px rgba(99, 102, 241, 0.4), 0 0 0 2px rgba(255, 255, 255, 0.2) inset;">
+                        {{ user['username'][0] | upper if user else 'U' }}
+                    </div>
+                    <div style="position: absolute; bottom: -4px; right: -4px; width: 22px; height: 22px; background: #10b981; border: 3px solid #090d16; border-radius: 50%;" title="Active Account"></div>
+                </div>
+
+                <div class="flex-grow-1">
+                    <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start gap-2 mb-1.5">
+                        <h2 class="fw-extrabold text-white mb-0">{{ user['username'] if user else 'User' }}</h2>
+                        <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-25 px-2.5 py-1">
+                            <i class="fa-solid fa-shield-check me-1"></i> Active Member
+                        </span>
+                    </div>
+                    <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start gap-3 text-secondary small">
+                        <span><i class="fa-solid fa-envelope me-1.5 text-primary"></i> {{ user['email'] if user else '-' }}</span>
+                        <span><i class="fa-solid fa-phone me-1.5 text-info"></i> {{ user['phone'] if user else '-' }}</span>
+                        <span><i class="fa-solid fa-id-badge me-1.5 text-warning"></i> User ID #{{ user['id'] if user else '-' }}</span>
+                    </div>
+                </div>
+
+                <div>
+                    <a href="{{ url_for('logout') }}" class="btn btn-sm btn-glass-secondary px-3 py-2 text-danger border-danger border-opacity-25">
+                        <i class="fa-solid fa-right-from-bracket me-1.5"></i> Log Out
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3D Lifetime Account Stats -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="stat-card-3d stat-indigo">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <span class="text-uppercase small fw-bold tracking-wider" style="color: #a5b4fc;">Total Entries</span>
+                            <h3 class="fw-extrabold text-white my-1">{{ stats['total_count'] }}</h3>
+                            <small class="text-light opacity-75">Recorded expenses</small>
+                        </div>
+                        <div class="stat-icon-3d" style="color: #818cf8;">
+                            <i class="fa-solid fa-receipt"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="stat-card-3d stat-emerald">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <span class="text-uppercase small fw-bold tracking-wider" style="color: #6ee7b7;">Lifetime Spending</span>
+                            <h3 class="fw-extrabold text-white my-1">₹{{ "{:,.2f}".format(stats['total_amount']) }}</h3>
+                            <small class="text-light opacity-75">All-time tracked</small>
+                        </div>
+                        <div class="stat-icon-3d" style="color: #34d399;">
+                            <i class="fa-solid fa-coins"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="stat-card-3d stat-amber">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <span class="text-uppercase small fw-bold tracking-wider" style="color: #fde68a;">Top Category</span>
+                            <h3 class="fw-extrabold text-white my-1">{{ stats['top_category'] }}</h3>
+                            <small class="text-light opacity-75">Highest spend area</small>
+                        </div>
+                        <div class="stat-icon-3d" style="color: #fbbf24;">
+                            <i class="fa-solid fa-chart-simple"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Profile & Security Details Card -->
+        <div class="card card-glass mb-4">
+            <div class="card-glass-header d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    <i class="fa-solid fa-user-gear text-primary fs-5 me-2"></i>
+                    <h5 class="mb-0">Edit Profile & Credentials</h5>
+                </div>
+                <small class="text-muted">Keep your account details up to date</small>
+            </div>
+            <div class="card-body p-4 p-md-5">
+                <form action="{{ url_for('profile') }}" method="POST">
+                    <!-- General Details -->
+                    <h6 class="text-info text-uppercase fw-bold small tracking-wider mb-3">
+                        <i class="fa-solid fa-id-card me-1.5"></i> Personal Information
+                    </h6>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label for="username" class="form-label">Full Name / Username *</label>
+                            <input type="text" class="form-control" id="username" name="username" value="{{ user['username'] if user else '' }}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="email" class="form-label">Email Address *</label>
+                            <input type="email" class="form-control" id="email" name="email" value="{{ user['email'] if user else '' }}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="phone" class="form-label">Phone Number *</label>
+                            <input type="tel" class="form-control" id="phone" name="phone" value="{{ user['phone'] if user else '' }}" required>
+                        </div>
+                    </div>
+
+                    <hr style="border-color: rgba(255,255,255,0.08);" class="my-4">
+
+                    <!-- Security & Password -->
+                    <h6 class="text-warning text-uppercase fw-bold small tracking-wider mb-2">
+                        <i class="fa-solid fa-lock me-1.5"></i> Change Password (Optional)
+                    </h6>
+                    <p class="text-muted small mb-3">Leave blank if you do not wish to change your password.</p>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="current_password" class="form-label">Current Password</label>
+                            <div class="password-field-wrapper">
+                                <input type="password" class="form-control" id="current_password" name="current_password" placeholder="Enter current password">
+                                <button type="button" class="password-eye-btn" onclick="togglePasswordVisibility('current_password', this)">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="new_password" class="form-label">New Password</label>
+                            <div class="password-field-wrapper">
+                                <input type="password" class="form-control" id="new_password" name="new_password" placeholder="Create new password">
+                                <button type="button" class="password-eye-btn" onclick="togglePasswordVisibility('new_password', this)">
+                                    <i class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2.5">
+                        <button type="submit" class="btn btn-glow-primary px-4 py-2.5">
+                            <i class="fa-solid fa-floppy-disk me-1.5"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Password Seeing Facility for Profile
+    function togglePasswordVisibility(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const icon = btn.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+</script>
+{% endblock %}
