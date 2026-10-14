@@ -4,53 +4,52 @@
 <div class="row justify-content-center">
     <div class="col-lg-10">
 
-        <!-- User Profile Hero Header (3D Glass) -->
-        <div class="card card-glass mb-4 p-4 p-md-5 position-relative overflow-hidden">
-            <!-- Background Decorative Glow -->
-            <div style="position: absolute; top: -50px; right: -50px; width: 220px; height: 220px; background: radial-gradient(circle, rgba(99,102,241,0.3) 0%, transparent 70%); border-radius: 50%; pointer-events: none;"></div>
-
-            <div class="d-flex flex-column flex-md-row align-items-center gap-4 text-center text-md-start position-relative">
-                <!-- 3D Glowing User Avatar -->
+        <!-- User Profile Hero Header (Fintech Card) -->
+        <div class="fintech-card mb-4 p-4 p-md-4 position-relative">
+            <div class="d-flex flex-column flex-md-row align-items-center gap-4 text-center text-md-start">
+                <!-- User Avatar Badge -->
                 <div class="position-relative">
-                    <div style="width: 90px; height: 90px; border-radius: 24px; background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 800; color: #ffffff; box-shadow: 0 12px 30px rgba(99, 102, 241, 0.4), 0 0 0 2px rgba(255, 255, 255, 0.2) inset;">
+                    <div style="width: 76px; height: 76px; border-radius: 18px; background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%); display: flex; align-items: center; justify-content: center; font-size: 2.1rem; font-weight: 800; color: #ffffff; box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);">
                         {{ user['username'][0] | upper if user else 'U' }}
                     </div>
-                    <div style="position: absolute; bottom: -4px; right: -4px; width: 22px; height: 22px; background: #10b981; border: 3px solid #090d16; border-radius: 50%;" title="Active Account"></div>
+                    <div style="position: absolute; bottom: -3px; right: -3px; width: 18px; height: 18px; background: #10b981; border: 2.5px solid #0f1523; border-radius: 50%;" title="Active Account"></div>
                 </div>
 
                 <div class="flex-grow-1">
                     <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start gap-2 mb-1.5">
-                        <h2 class="fw-extrabold text-white mb-0">{{ user['username'] if user else 'User' }}</h2>
-                        <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-25 px-2.5 py-1">
-                            <i class="fa-solid fa-shield-check me-1"></i> Active Member
+                        <h2 class="h4 fw-bold text-white mb-0">{{ user['username'] if user else 'User' }}</h2>
+                        <span class="fintech-pill" style="color: #34d399; background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.25);">
+                            <i class="fa-solid fa-circle-check me-1"></i> Active Member
                         </span>
                     </div>
                     <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start gap-3 text-secondary small">
-                        <span><i class="fa-solid fa-envelope me-1.5 text-primary"></i> {{ user['email'] if user else '-' }}</span>
-                        <span><i class="fa-solid fa-phone me-1.5 text-info"></i> {{ user['phone'] if user else '-' }}</span>
-                        <span><i class="fa-solid fa-id-badge me-1.5 text-warning"></i> User ID #{{ user['id'] if user else '-' }}</span>
+                        <span><i class="fa-solid fa-envelope me-1.5 text-primary opacity-75"></i> {{ user['email'] if user else '-' }}</span>
+                        <span><i class="fa-solid fa-phone me-1.5 text-info opacity-75"></i> {{ user['phone'] if user else '-' }}</span>
+                        <span class="font-monospace"><i class="fa-solid fa-id-badge me-1.5 text-warning opacity-75"></i> ID #{{ user['id'] if user else '-' }}</span>
                     </div>
                 </div>
 
                 <div>
-                    <a href="{{ url_for('logout') }}" class="btn btn-sm btn-glass-secondary px-3 py-2 text-danger border-danger border-opacity-25">
-                        <i class="fa-solid fa-right-from-bracket me-1.5"></i> Log Out
+                    <a href="{{ url_for('logout') }}" class="btn btn-fintech-secondary text-danger">
+                        <i class="fa-solid fa-arrow-right-from-bracket me-1.5"></i> Log Out
                     </a>
                 </div>
             </div>
         </div>
 
-        <!-- 3D Lifetime Account Stats -->
+        <!-- Lifetime Account Metrics -->
         <div class="row g-3 mb-4">
             <div class="col-md-4">
-                <div class="stat-card-3d stat-indigo">
+                <div class="stat-card-fintech stat-indigo">
                     <div class="d-flex align-items-center justify-content-between">
                         <div>
-                            <span class="text-uppercase small fw-bold tracking-wider" style="color: #a5b4fc;">Total Entries</span>
-                            <h3 class="fw-extrabold text-white my-1">{{ stats['total_count'] }}</h3>
-                            <small class="text-light opacity-75">Recorded expenses</small>
+                            <span class="stat-metric-title" style="color: #a5b4fc;">
+                                <i class="fa-solid fa-receipt me-1 opacity-75"></i> Total Entries
+                            </span>
+                            <div class="stat-metric-value font-monospace">{{ stats['total_count'] }}</div>
+                            <small class="text-secondary">Recorded expenses</small>
                         </div>
-                        <div class="stat-icon-3d" style="color: #818cf8;">
+                        <div class="stat-icon-3d">
                             <i class="fa-solid fa-receipt"></i>
                         </div>
                     </div>
@@ -58,30 +57,34 @@
             </div>
 
             <div class="col-md-4">
-                <div class="stat-card-3d stat-emerald">
+                <div class="stat-card-fintech stat-emerald">
                     <div class="d-flex align-items-center justify-content-between">
                         <div>
-                            <span class="text-uppercase small fw-bold tracking-wider" style="color: #6ee7b7;">Lifetime Spending</span>
-                            <h3 class="fw-extrabold text-white my-1">₹{{ "{:,.2f}".format(stats['total_amount']) }}</h3>
-                            <small class="text-light opacity-75">All-time tracked</small>
+                            <span class="stat-metric-title" style="color: #6ee7b7;">
+                                <i class="fa-solid fa-coins me-1 opacity-75"></i> Lifetime Spend
+                            </span>
+                            <div class="stat-metric-value font-monospace">₹{{ "{:,.2f}".format(stats['total_amount']) }}</div>
+                            <small class="text-secondary">Cumulative total</small>
                         </div>
-                        <div class="stat-icon-3d" style="color: #34d399;">
-                            <i class="fa-solid fa-coins"></i>
+                        <div class="stat-icon-3d">
+                            <i class="fa-solid fa-vault"></i>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="col-md-4">
-                <div class="stat-card-3d stat-amber">
+                <div class="stat-card-fintech stat-amber">
                     <div class="d-flex align-items-center justify-content-between">
                         <div>
-                            <span class="text-uppercase small fw-bold tracking-wider" style="color: #fde68a;">Top Category</span>
-                            <h3 class="fw-extrabold text-white my-1">{{ stats['top_category'] }}</h3>
-                            <small class="text-light opacity-75">Highest spend area</small>
+                            <span class="stat-metric-title" style="color: #fde68a;">
+                                <i class="fa-solid fa-chart-simple me-1 opacity-75"></i> Top Category
+                            </span>
+                            <div class="stat-metric-value" style="font-size: 1.5rem; line-height: 1.4;">{{ stats['top_category'] }}</div>
+                            <small class="text-secondary">Highest spend sector</small>
                         </div>
-                        <div class="stat-icon-3d" style="color: #fbbf24;">
-                            <i class="fa-solid fa-chart-simple"></i>
+                        <div class="stat-icon-3d">
+                            <i class="fa-solid fa-arrow-trend-up"></i>
                         </div>
                     </div>
                 </div>
@@ -89,68 +92,67 @@
         </div>
 
         <!-- Edit Profile & Security Details Card -->
-        <div class="card card-glass mb-4">
-            <div class="card-glass-header d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center">
-                    <i class="fa-solid fa-user-gear text-primary fs-5 me-2"></i>
-                    <h5 class="mb-0">Edit Profile & Credentials</h5>
+        <div class="fintech-card mb-4">
+            <div class="fintech-card-header d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-user-gear text-primary fs-6"></i>
+                    <h5 class="mb-0 fs-6 fw-bold">Account Profile & Security</h5>
                 </div>
-                <small class="text-muted">Keep your account details up to date</small>
+                <small class="text-secondary">Keep your information and credentials secure</small>
             </div>
             <div class="card-body p-4 p-md-5">
                 <form action="{{ url_for('profile') }}" method="POST">
-                    <!-- General Details -->
-                    <h6 class="text-info text-uppercase fw-bold small tracking-wider mb-3">
-                        <i class="fa-solid fa-id-card me-1.5"></i> Personal Information
-                    </h6>
-
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-4">
-                            <label for="username" class="form-label">Full Name / Username *</label>
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                            <label for="username" class="form-label">Full Name / Display Name *</label>
                             <input type="text" class="form-control" id="username" name="username" value="{{ user['username'] if user else '' }}" required>
                         </div>
-                        <div class="col-md-4">
+
+                        <div class="col-md-6">
                             <label for="email" class="form-label">Email Address *</label>
                             <input type="email" class="form-control" id="email" name="email" value="{{ user['email'] if user else '' }}" required>
                         </div>
-                        <div class="col-md-4">
+
+                        <div class="col-md-6">
                             <label for="phone" class="form-label">Phone Number *</label>
                             <input type="tel" class="form-control" id="phone" name="phone" value="{{ user['phone'] if user else '' }}" required>
                         </div>
-                    </div>
 
-                    <hr style="border-color: rgba(255,255,255,0.08);" class="my-4">
-
-                    <!-- Security & Password -->
-                    <h6 class="text-warning text-uppercase fw-bold small tracking-wider mb-2">
-                        <i class="fa-solid fa-lock me-1.5"></i> Change Password (Optional)
-                    </h6>
-                    <p class="text-muted small mb-3">Leave blank if you do not wish to change your password.</p>
-
-                    <div class="row g-3 mb-4">
                         <div class="col-md-6">
-                            <label for="current_password" class="form-label">Current Password</label>
+                            <label for="current_password" class="form-label">Current Password (Required to save changes) *</label>
                             <div class="password-field-wrapper">
-                                <input type="password" class="form-control" id="current_password" name="current_password" placeholder="Enter current password">
-                                <button type="button" class="password-eye-btn" onclick="togglePasswordVisibility('current_password', this)">
-                                    <i class="fa-solid fa-eye"></i>
+                                <input type="password" class="form-control" id="current_password" name="current_password" placeholder="Verify your current password" required>
+                                <button type="button" class="password-eye-btn" onclick="togglePass('current_password', this)">
+                                    <i class="fa-regular fa-eye"></i>
                                 </button>
                             </div>
                         </div>
+
+                        <div class="col-12">
+                            <hr style="border-color: rgba(255,255,255,0.06); margin: 0.5rem 0 1.5rem;">
+                            <h6 class="text-white fw-bold mb-1 fs-6">
+                                <i class="fa-solid fa-key text-warning me-2"></i>Change Password (Optional)
+                            </h6>
+                            <p class="text-secondary small mb-3">Leave blank if you do not want to change your existing password.</p>
+                        </div>
+
                         <div class="col-md-6">
                             <label for="new_password" class="form-label">New Password</label>
                             <div class="password-field-wrapper">
-                                <input type="password" class="form-control" id="new_password" name="new_password" placeholder="Create new password">
-                                <button type="button" class="password-eye-btn" onclick="togglePasswordVisibility('new_password', this)">
-                                    <i class="fa-solid fa-eye"></i>
+                                <input type="password" class="form-control" id="new_password" name="new_password" placeholder="Minimum 6 characters">
+                                <button type="button" class="password-eye-btn" onclick="togglePass('new_password', this)">
+                                    <i class="fa-regular fa-eye"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    <div class="d-flex justify-content-end gap-2.5">
-                        <button type="submit" class="btn btn-glow-primary px-4 py-2.5">
-                            <i class="fa-solid fa-floppy-disk me-1.5"></i> Save Changes
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 pt-2">
+                        <small class="text-muted">
+                            <i class="fa-solid fa-lock me-1"></i> Passwords are protected and securely hashed.
+                        </small>
+                        <button type="submit" class="btn btn-fintech-primary px-4 py-2">
+                            <i class="fa-solid fa-check me-2"></i> Save Account Updates
                         </button>
                     </div>
                 </form>
@@ -163,8 +165,7 @@
 
 {% block scripts %}
 <script>
-    // Password Seeing Facility for Profile
-    function togglePasswordVisibility(inputId, btn) {
+    function togglePass(inputId, btn) {
         const input = document.getElementById(inputId);
         const icon = btn.querySelector('i');
         if (input.type === 'password') {
@@ -179,4 +180,3 @@
     }
 </script>
 {% endblock %}
-

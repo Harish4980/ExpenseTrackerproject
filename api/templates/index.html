@@ -3,47 +3,63 @@
 {% block content %}
 <!-- Dashboard Welcome Header -->
 <div class="row mb-4 align-items-center">
-    <div class="col-md-8 text-center text-md-start">
-        <h1 class="h2 fw-bold text-white mb-1">
-            <i class="fa-solid fa-chart-line text-primary me-2"></i>Dashboard Overview
-        </h1>
-        <p class="text-secondary mb-0">Welcome back, <span class="text-info fw-semibold">{{ session.get('username', 'User') }}</span>! Here is your current financial summary.</p>
+    <div class="col-md-7 text-center text-md-start">
+        <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-2 mb-1">
+            <h1 class="h3 fw-bold text-white mb-0">Financial Overview</h1>
+            <span class="fintech-pill">
+                <i class="fa-regular fa-calendar me-1.5 opacity-75"></i> {{ current_date }}
+            </span>
+        </div>
+        <p class="text-secondary small mb-0">
+            Welcome back, <span class="text-white fw-semibold">{{ session.get('username', 'User') }}</span>. Here is your cash outflow and expense summary.
+        </p>
     </div>
-    <div class="col-md-4 text-center text-md-end mt-3 mt-md-0">
-        <a href="{{ url_for('report') }}" class="btn btn-sm btn-glass-secondary px-3 py-2">
-            <i class="fa-solid fa-chart-pie text-warning me-1.5"></i> View Analytics
+    <div class="col-md-5 text-center text-md-end mt-3 mt-md-0">
+        <a href="{{ url_for('report') }}" class="btn btn-fintech-secondary me-2">
+            <i class="fa-solid fa-chart-pie me-1.5 text-warning"></i> View Analytics
+        </a>
+        <a href="{{ url_for('expenses') }}" class="btn btn-fintech-primary">
+            <i class="fa-solid fa-list me-1.5"></i> All Transactions
         </a>
     </div>
 </div>
 
-<!-- 3D Stat Summary Cards -->
+<!-- Modern Fintech Stat Metric Cards -->
 <div class="row mb-4 g-3">
-    <!-- Today's Spending -->
-    <div class="col-md-6 col-lg-6">
-        <div class="stat-card-3d stat-emerald">
+    <!-- Today's Outflow -->
+    <div class="col-md-6">
+        <div class="stat-card-fintech stat-emerald">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
-                    <span class="text-uppercase small fw-bold tracking-wider" style="color: #6ee7b7;">Today's Spending</span>
-                    <h2 class="display-6 fw-extrabold text-white my-1">₹{{ "{:,.2f}".format(today_total) }}</h2>
-                    <small class="text-light opacity-75"><i class="fa-solid fa-calendar-day me-1"></i> Recorded for today</small>
+                    <span class="stat-metric-title" style="color: #6ee7b7;">
+                        <i class="fa-solid fa-bolt-lightning me-1 opacity-75"></i> Today's Spending
+                    </span>
+                    <div class="stat-metric-value font-monospace">₹{{ "{:,.2f}".format(today_total) }}</div>
+                    <small class="text-secondary">
+                        <i class="fa-regular fa-clock me-1"></i> Logged today
+                    </small>
                 </div>
-                <div class="stat-icon-3d text-emerald" style="color: #34d399;">
-                    <i class="fa-solid fa-bolt-lightning"></i>
+                <div class="stat-icon-3d">
+                    <i class="fa-solid fa-arrow-trend-down"></i>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Monthly Spending -->
-    <div class="col-md-6 col-lg-6">
-        <div class="stat-card-3d stat-indigo">
+    <div class="col-md-6">
+        <div class="stat-card-fintech stat-indigo">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
-                    <span class="text-uppercase small fw-bold tracking-wider" style="color: #a5b4fc;">This Month's Total</span>
-                    <h2 class="display-6 fw-extrabold text-white my-1">₹{{ "{:,.2f}".format(month_total) }}</h2>
-                    <small class="text-light opacity-75"><i class="fa-solid fa-calendar-days me-1"></i> Current billing cycle</small>
+                    <span class="stat-metric-title" style="color: #a5b4fc;">
+                        <i class="fa-solid fa-calendar-days me-1 opacity-75"></i> This Month's Outflow
+                    </span>
+                    <div class="stat-metric-value font-monospace">₹{{ "{:,.2f}".format(month_total) }}</div>
+                    <small class="text-secondary">
+                        <i class="fa-regular fa-calendar-check me-1"></i> Current billing cycle
+                    </small>
                 </div>
-                <div class="stat-icon-3d" style="color: #818cf8;">
+                <div class="stat-icon-3d">
                     <i class="fa-solid fa-wallet"></i>
                 </div>
             </div>
@@ -54,26 +70,26 @@
 <div class="row g-4">
     <!-- Quick Add Expense Form -->
     <div class="col-lg-5">
-        <div class="card card-glass h-100">
-            <div class="card-glass-header d-flex align-items-center">
-                <div class="brand-badge me-2.5" style="width: 32px; height: 32px; font-size: 0.9rem;">
+        <div class="fintech-card h-100">
+            <div class="fintech-card-header d-flex align-items-center">
+                <div class="brand-badge me-2" style="width: 28px; height: 28px; font-size: 0.8rem;">
                     <i class="fa-solid fa-plus"></i>
                 </div>
-                <h5 class="mb-0">Quick Add Expense</h5>
+                <h5 class="mb-0 fs-6 fw-bold">Record Expense</h5>
             </div>
             <div class="card-body p-4">
                 <form action="{{ url_for('add') }}" method="POST">
                     <div class="mb-3">
                         <label for="title" class="form-label">Expense Title / Item *</label>
-                        <input type="text" class="form-control" id="title" name="title" placeholder="e.g., Grocery, Cafe, Uber ride" required>
+                        <input type="text" class="form-control" id="title" name="title" placeholder="e.g. Grocery, Flight Ticket, Dinner" required>
                     </div>
 
                     <div class="row g-3">
                         <div class="col-md-6 mb-3">
                             <label for="amount" class="form-label">Amount (₹) *</label>
                             <div class="input-group">
-                                <span class="input-group-text">₹</span>
-                                <input type="number" step="0.01" class="form-control" id="amount" name="amount" placeholder="0.00" required min="0.01">
+                                <span class="input-group-text font-monospace">₹</span>
+                                <input type="number" step="0.01" class="form-control font-monospace" id="amount" name="amount" placeholder="0.00" required min="0.01">
                             </div>
                         </div>
                         <div class="col-md-6 mb-3">
@@ -94,12 +110,12 @@
 
                     <div class="mb-4">
                         <label for="description" class="form-label">Notes / Description (Optional)</label>
-                        <textarea class="form-control" id="description" name="description" rows="2" placeholder="e.g., Lunch with team at cafe"></textarea>
+                        <textarea class="form-control" id="description" name="description" rows="2" placeholder="e.g., Lunch with team or subscription renewal"></textarea>
                     </div>
 
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-glow-success py-2.5">
-                            <i class="fa-solid fa-paper-plane me-2"></i>Save Expense
+                        <button type="submit" class="btn btn-fintech-success py-2.5">
+                            <i class="fa-solid fa-check me-2"></i> Save Expense
                         </button>
                     </div>
                 </form>
@@ -107,16 +123,16 @@
         </div>
     </div>
 
-    <!-- Recent Expenses Log -->
+    <!-- Recent Transactions List -->
     <div class="col-lg-7">
-        <div class="card card-glass h-100">
-            <div class="card-glass-header d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center">
-                    <i class="fa-solid fa-clock-rotate-left text-info fs-5 me-2"></i>
-                    <h5 class="mb-0">Recent Transactions</h5>
+        <div class="fintech-card h-100">
+            <div class="fintech-card-header d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-primary fs-6"></i>
+                    <h5 class="mb-0 fs-6 fw-bold">Recent Transactions</h5>
                 </div>
-                <a href="{{ url_for('expenses') }}" class="btn btn-sm btn-glass-secondary">
-                    View All <i class="fa-solid fa-arrow-right ms-1"></i>
+                <a href="{{ url_for('expenses') }}" class="btn btn-fintech-secondary py-1 px-2.5 small">
+                    View All <i class="fa-solid fa-arrow-right ms-1 opacity-75"></i>
                 </a>
             </div>
             <div class="card-body p-0">
@@ -129,25 +145,27 @@
                                     <th>Category</th>
                                     <th>Date</th>
                                     <th class="text-end">Amount</th>
-                                    <th class="text-center pe-4" style="width: 70px;">Action</th>
+                                    <th class="text-center pe-4" style="width: 60px;">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for expense in recent_expenses %}
                                     <tr>
                                         <td class="ps-4 py-3">
-                                            <div class="fw-semibold text-white">{{ expense['title'] }}</div>
+                                            <div class="fw-semibold text-white small">{{ expense['title'] }}</div>
                                             {% if expense['description'] %}
                                                 <small class="text-muted d-block text-truncate" style="max-width: 170px;">{{ expense['description'] }}</small>
                                             {% endif %}
                                         </td>
                                         <td>
                                             <span class="category-badge badge-{{ expense['category'] }}">
-                                                <i class="fa-solid fa-tag me-1 opacity-75"></i>{{ expense['category'] }}
+                                                <i class="fa-solid fa-tag opacity-75"></i> {{ expense['category'] }}
                                             </span>
                                         </td>
                                         <td class="text-secondary small">{{ expense['date'] }}</td>
-                                        <td class="text-end fw-bold text-white font-monospace">₹{{ "{:,.2f}".format(expense['amount']) }}</td>
+                                        <td class="text-end fw-bold text-white font-monospace">
+                                            ₹{{ "{:,.2f}".format(expense['amount']) }}
+                                        </td>
                                         <td class="text-center pe-4">
                                             <form action="{{ url_for('delete', expense_id=expense['id']) }}" method="POST" onsubmit="return confirm('Delete this expense?');" class="m-0">
                                                 <button type="submit" class="action-btn-circle action-btn-danger" title="Delete Expense">
@@ -162,9 +180,9 @@
                     </div>
                 {% else %}
                     <div class="text-center py-5">
-                        <div class="text-muted mb-3"><i class="fa-solid fa-receipt display-4 opacity-50"></i></div>
-                        <h6 class="fw-semibold text-secondary">No Expenses Logged Yet</h6>
-                        <p class="text-muted small px-3">Add your first expense with the form on the left to begin tracking.</p>
+                        <div class="text-muted mb-2"><i class="fa-solid fa-receipt display-5 opacity-25"></i></div>
+                        <h6 class="fw-semibold text-white mb-1">No Transactions Yet</h6>
+                        <p class="text-secondary small px-3 mb-0">Record your first expense on the left to start tracking your cash flow.</p>
                     </div>
                 {% endif %}
             </div>
